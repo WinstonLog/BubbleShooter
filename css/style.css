@@ -1869,3 +1869,49 @@ canvas {
     scroll-behavior: auto !important;
   }
 }
+
+/* ============================================================
+   ВОЗРАСТНАЯ ПЛАШКА (требование VK, п. 2.1.5)
+   ============================================================ */
+.age-badge {
+  position: fixed;
+  bottom: calc(var(--gap-md) + var(--safe-bottom));
+  right: calc(var(--gap-md) + var(--safe-right));
+  padding: 4px 10px;
+  min-width: 34px;
+  height: 26px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(10, 14, 39, 0.85);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 8px;
+
+  color: #dbe6ff;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+
+  z-index: 50;
+  pointer-events: none;
+  user-select: none;
+
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+/* В ландшафте на низких экранах — сдвигаем выше кнопок */
+@media (max-height: 520px) and (orientation: landscape) {
+  .age-badge {
+    bottom: 8px;
+    right: 8px;
+    padding: 3px 8px;
+    height: 22px;
+    font-size: 11px;
+  }
+}
