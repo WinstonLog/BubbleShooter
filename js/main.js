@@ -18,6 +18,17 @@ let clickLock = false;
 // 🎯 Флаг: игрок уже выбрал награду за рекламу на экране проигрыша
 let adChoiceMade = false;
 
+// ============================================================
+// 🎯 STARTUP-РЕКЛАМА
+// ============================================================
+// Правила VK запрещают рекламу при первом запуске приложения.
+// Поэтому:
+//   1-й запуск  → НЕ показываем рекламу, ставим флаг «играл раньше»
+//   2-й+ запуск → показываем 1 раз за сессию (sessionStorage)
+// ============================================================
+const HAS_PLAYED_KEY = 'bubble_has_played_before';
+const STARTUP_AD_SHOWN_KEY = 'bubble_startup_ad_shown';
+
 function locked(handler, delay = 500) {
   return function(e) {
     if (clickLock) return;
@@ -72,12 +83,42 @@ function resetLoseAdButtons() {
   }
 }
 
-// 🎯 Показ рекламы при старте УБРАН — правила VK запрещают.
-// Реклама показывается только:
-//   1) после проигрыша (fullscreen interstitial, между сессиями)
-//   2) за награду по явному действию игрока (rewarded)
-// Включать startup-рекламу можно ТОЛЬКО после одобрения модерации.
+// ============================================================
+// 🎯 ПОКАЗ STARTUP-РЕКЛАМЫ (только для повторных заходов)
+// ============================================================
+function showStartupAdOnce() {
+  // Не чаще одного раза за сессию
+  if (sessionStorage.getItem(STARTUP_AD_SHOWN_KEY) === 'true') {
+    log('📺 Startup ad already shown this session');
+    return;
+  }
 
+  // Только если SDK доступен
+  if (!VKSDK.available) {
+    log('🔧 Startup ad skipped: SDK unavailable');
+    return;
+  }
+
+  // Небольшая задержка, чтобы меню успело отрисоваться
+  setTimeout(async () => {
+    sessionStorage.setItem(STARTUP_AD_SHOWN_KEY, 'true');
+
+    if (window.UI) window.UI.showAdIndicator(true);
+
+    try {
+      const shown = await VKSDK.showStartupAd();
+      log('📺 Startup ad result:', shown);
+    } catch (e) {
+      warn('Startup ad error:', e);
+    }
+
+    if (window.UI) window.UI.showAdIndicator(false);
+  }, 1200);
+}
+
+// ============================================================
+// 🎯 INIT
+// ============================================================
 async function init() {
   if (initStarted) return;
   initStarted = true;
@@ -390,7 +431,7 @@ async function init() {
   });
 
   // ============================================================
-  // 🎯 Х2 МОНЕТ ЗА РЕКЛАМУ (rewarded, по действию игрока — OK)
+  // 🎯 Х2 МОНЕТ ЗА РЕКЛАМУ (rewarded, по действию игрока)
   // ============================================================
   safe('btn-double-coins', 'click', locked(async () => {
     if (adChoiceMade) return;
@@ -438,7 +479,7 @@ async function init() {
   }, 1500));
 
   // ============================================================
-  // 🎯 ПРОДОЛЖИТЬ ЗА РЕКЛАМУ (rewarded, по действию игрока — OK)
+  // 🎯 ПРОДОЛЖИТЬ ЗА РЕКЛАМУ (rewarded, по действию игрока)
   // ============================================================
   safe('btn-continue-ad', 'click', locked(async () => {
     if (adChoiceMade) return;
@@ -560,9 +601,7 @@ async function init() {
       uiInstance.showBoostersBar(false);
       uiInstance.showScreen('lose');
 
-      // 🎯 Interstitial после проигрыша — это естественный разрыв
-      // между сессиями, разрешён правилами VK.
-      // Показываем не чаще, чем раз в 3 проигрыша.
+      // 🎯 Interstitial после проигрыша — естественный разрыв между сессиями
       adShownThisSession++;
       if (adShownThisSession >= 3 && VKSDK.canShowAd()) {
         setTimeout(async () => {
@@ -614,12 +653,20 @@ async function init() {
 
   log('✅ Init complete');
 
-  // 🎯 Startup-реклама УБРАНА.
-  // Реклама при запуске приложения запрещена правилами VK.
-  // Здесь раньше вызывался showStartupAdOnce() — удалено.
-  // Можно будет вернуть ПОСЛЕ одобрения модерации, но и тогда
-  // её лучше показывать не сразу, а через 5-10 секунд после старта
-  // и только один раз за сессию.
+  // ============================================================
+  // 🎯 STARTUP-РЕКЛАМА: только для повторных заходов
+  // ============================================================
+  const hasPlayed = localStorage.getItem(HAS_PLAYED_KEY) === 'true';
+
+  if (hasPlayed) {
+    // Игрок уже запускал игру раньше — показываем рекламу
+    log('📺 Player has played before — showing startup ad');
+    showStartupAdOnce();
+  } else {
+    // Первый запуск — реклама НЕ показывается (правила VK)
+    localStorage.setItem(HAS_PLAYED_KEY, 'true');
+    log('🎯 First launch — startup ad skipped (VK rules)');
+  }
 }
 
 if (document.readyState === 'loading') {
