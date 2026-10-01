@@ -94,6 +94,7 @@ const LOCALES = {
         communityUnavailable: 'Подписка доступна только в VK',
         vkOnly: 'Доступно только в VK',
         lbVkHint: 'Нажми «Открыть рейтинг VK», чтобы увидеть таблицу лидеров',
+        loadError: 'Не удалось загрузить прогресс. Играем локально',
 
         // --- Туториал ---
         tutSkip: 'Пропустить',
@@ -210,6 +211,7 @@ const LOCALES = {
         communityUnavailable: 'Joining is available in VK only',
         vkOnly: 'Available in VK only',
         lbVkHint: 'Tap "Open VK leaderboard" to see the global ranking',
+        loadError: 'Failed to load progress. Playing locally',
 
         // --- Tutorial ---
         tutSkip: 'Skip',

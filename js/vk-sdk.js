@@ -35,6 +35,7 @@ class VKSDKWrapper {
     this._saving = false;
     this._saveQueue = null;
     this._adMuting = false;
+    this._subscribed = false;
   }
 
   isDevMode() {
@@ -116,10 +117,13 @@ class VKSDKWrapper {
   }
 
   // ------------------------------------------------------------
-  // PAUSE / RESUME через visibilitychange
-  // (VK Bridge не имеет game_api_pause/resume как Yandex)
+  // PAUSE / RESUME
+  //   — visibilitychange (браузер)
+  //   — blur / focus (браузер)
+  //   — VKWebAppViewHide / VKWebAppViewRestore (VK Bridge, п. 2.2.5)
   // ------------------------------------------------------------
   setupPauseResumeEvents() {
+    // 1) Браузерное сворачивание вкладки
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
         log('⏸️ Hidden — pause');
@@ -131,9 +135,38 @@ class VKSDKWrapper {
       }
     });
 
+    // 2) Потеря/получение фокуса окном
     window.addEventListener('blur', () => {
       this._pauseCallbacks.forEach(cb => { try { cb(); } catch (e) {} });
     });
+    window.addEventListener('focus', () => {
+      this._resumeCallbacks.forEach(cb => { try { cb(); } catch (e) {} });
+    });
+
+    // 3) VK Bridge события (сворачивание/разворачивание VK)
+    if (this.vk && !this._subscribed) {
+      this._subscribed = true;
+      try {
+        this.vk.subscribe((e) => {
+          const type = e && e.detail && e.detail.type;
+          if (!type) return;
+
+          if (type === 'VKWebAppViewHide') {
+            log('👋 VKWebAppViewHide');
+            try { if (window.AudioManager) AudioManager.stopMusic(); } catch (err) {}
+            this.gameplayStop();
+            this._pauseCallbacks.forEach(cb => { try { cb(); } catch (err) {} });
+          }
+          else if (type === 'VKWebAppViewRestore') {
+            log('👋 VKWebAppViewRestore');
+            this._resumeCallbacks.forEach(cb => { try { cb(); } catch (err) {} });
+          }
+        });
+        log('✅ VK Bridge subscribe OK');
+      } catch (e) {
+        warn('⚠️ VK Bridge subscribe failed:', e.message);
+      }
+    }
 
     log('✅ Pause/resume events subscribed');
   }
@@ -277,8 +310,6 @@ class VKSDKWrapper {
 
   // ------------------------------------------------------------
   // 🎯 ОБЛАЧНЫЕ СОХРАНЕНИЯ (VK Storage)
-  // VK Storage: ключ-значение, до 100 ключей, до 200КБ на значение.
-  // Сохраняем всё в один ключ как JSON.
   // ------------------------------------------------------------
   async saveProgress(data) {
     if (this._saving) {
@@ -335,6 +366,7 @@ class VKSDKWrapper {
     }
   }
 
+  // 🎯 Загрузка прогресса с тостом при ошибке (п. 3.5.1)
   async loadProgress() {
     const DEFAULT = {
       best: 0,
@@ -345,14 +377,14 @@ class VKSDKWrapper {
 
     // VK Storage
     if (this.available) {
-      const res = await this._send('VKWebAppStorageGet', {
-        keys: [VK_CONFIG.STORAGE_KEY]
-      });
+      try {
+        const res = await this._send('VKWebAppStorageGet', {
+          keys: [VK_CONFIG.STORAGE_KEY]
+        });
 
-      if (res && res.keys && res.keys.length > 0) {
-        const item = res.keys[0];
-        if (item && item.value) {
-          try {
+        if (res && res.keys && res.keys.length > 0) {
+          const item = res.keys[0];
+          if (item && item.value) {
             const parsed = JSON.parse(item.value);
             log('☁️ VK Storage load OK');
             return {
@@ -361,9 +393,13 @@ class VKSDKWrapper {
               coins: Number(parsed.coins) || 0,
               boosters: parsed.boosters || { bomb: 0, freeze: 0, color: 0 }
             };
-          } catch (e) {
-            warn('☁️ VK Storage parse failed:', e.message);
           }
+        }
+      } catch (e) {
+        warn('☁️ VK Storage load failed:', e.message);
+        // Заглушка для игрока
+        if (window.UI && window.UI.toast && window.t) {
+          window.UI.toast(window.t('loadError') || 'Не удалось загрузить прогресс');
         }
       }
     }
@@ -383,6 +419,9 @@ class VKSDKWrapper {
       }
     } catch (e) {
       warn('💾 Local load failed:', e.message);
+      if (window.UI && window.UI.toast && window.t) {
+        window.UI.toast(window.t('loadError') || 'Не удалось загрузить прогресс');
+      }
     }
 
     return DEFAULT;
@@ -390,8 +429,6 @@ class VKSDKWrapper {
 
   // ------------------------------------------------------------
   // 🎯 ЛИДЕРБОРД VK
-  // VK не отдаёт список записей клиенту — только setScore и
-  // нативное окно ShowLeaderBoardBox.
   // ------------------------------------------------------------
   async submitScore(score) {
     if (!this.available) {
@@ -407,7 +444,6 @@ class VKSDKWrapper {
 
   async getLeaderboard() {
     // VK не позволяет получить entries клиенту.
-    // Возвращаем null — UI покажет карточку пользователя и кнопку.
     return null;
   }
 
