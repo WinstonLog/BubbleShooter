@@ -72,18 +72,11 @@ function resetLoseAdButtons() {
   }
 }
 
-function showStartupAdOnce() {
-  if (sessionStorage.getItem('bubble_startup_ad_shown') === 'true') return;
-  if (!VKSDK.available) return;
-
-  setTimeout(async () => {
-    sessionStorage.setItem('bubble_startup_ad_shown', 'true');
-    if (window.UI) window.UI.showAdIndicator(true);
-    const shown = await VKSDK.showStartupAd();
-    if (window.UI) window.UI.showAdIndicator(false);
-    log('📺 Startup ad result:', shown);
-  }, 500);
-}
+// 🎯 Показ рекламы при старте УБРАН — правила VK запрещают.
+// Реклама показывается только:
+//   1) после проигрыша (fullscreen interstitial, между сессиями)
+//   2) за награду по явному действию игрока (rewarded)
+// Включать startup-рекламу можно ТОЛЬКО после одобрения модерации.
 
 async function init() {
   if (initStarted) return;
@@ -397,7 +390,7 @@ async function init() {
   });
 
   // ============================================================
-  // 🎯 Х2 МОНЕТ ЗА РЕКЛАМУ
+  // 🎯 Х2 МОНЕТ ЗА РЕКЛАМУ (rewarded, по действию игрока — OK)
   // ============================================================
   safe('btn-double-coins', 'click', locked(async () => {
     if (adChoiceMade) return;
@@ -445,7 +438,7 @@ async function init() {
   }, 1500));
 
   // ============================================================
-  // 🎯 ПРОДОЛЖИТЬ ЗА РЕКЛАМУ
+  // 🎯 ПРОДОЛЖИТЬ ЗА РЕКЛАМУ (rewarded, по действию игрока — OK)
   // ============================================================
   safe('btn-continue-ad', 'click', locked(async () => {
     if (adChoiceMade) return;
@@ -484,17 +477,14 @@ async function init() {
     AudioManager.click();
     uiInstance.showScreen('leaderboard');
 
-    // 🎯 Показываем собственный рекорд
     const selfEl = document.getElementById('lb-self-score');
     if (selfEl) selfEl.textContent = currentProgress.best;
 
-    // Отправляем текущий скор в VK
     try {
       VKSDK.submitScore(currentProgress.best);
     } catch (e) {}
   });
 
-  // 🎯 Открыть нативный лидерборд VK
   safe('btn-open-vk-lb', 'click', locked(async () => {
     AudioManager.click();
 
@@ -570,6 +560,9 @@ async function init() {
       uiInstance.showBoostersBar(false);
       uiInstance.showScreen('lose');
 
+      // 🎯 Interstitial после проигрыша — это естественный разрыв
+      // между сессиями, разрешён правилами VK.
+      // Показываем не чаще, чем раз в 3 проигрыша.
       adShownThisSession++;
       if (adShownThisSession >= 3 && VKSDK.canShowAd()) {
         setTimeout(async () => {
@@ -620,7 +613,13 @@ async function init() {
   setTimeout(hideLoader, 600);
 
   log('✅ Init complete');
-  showStartupAdOnce();
+
+  // 🎯 Startup-реклама УБРАНА.
+  // Реклама при запуске приложения запрещена правилами VK.
+  // Здесь раньше вызывался showStartupAdOnce() — удалено.
+  // Можно будет вернуть ПОСЛЕ одобрения модерации, но и тогда
+  // её лучше показывать не сразу, а через 5-10 секунд после старта
+  // и только один раз за сессию.
 }
 
 if (document.readyState === 'loading') {
