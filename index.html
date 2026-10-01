@@ -8,13 +8,13 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="format-detection" content="telephone=no">
-  <title>Bubble Shooter Deluxe</title>
+  <title>Цветной Взрыв</title>
 
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><radialGradient id='g' cx='35%25' cy='35%25'><stop offset='0%25' stop-color='%237dc3ff'/><stop offset='50%25' stop-color='%234facfe'/><stop offset='100%25' stop-color='%232b7ac7'/></radialGradient></defs><circle cx='50' cy='50' r='45' fill='url(%23g)'/><circle cx='35' cy='32' r='14' fill='white' opacity='0.75'/></svg>">
 
   <link rel="stylesheet" href="css/style.css">
 
-  <!-- VK Bridge. Обязательно подключается ДО остальных скриптов -->
+  <!-- VK Bridge -->
   <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
 </head>
 <body>
@@ -32,7 +32,7 @@
     <canvas id="game-canvas"></canvas>
     <canvas id="fx-canvas"></canvas>
 
-    <!-- 🎯 Панель бустеров (сворачиваемая) -->
+    <!-- Панель бустеров -->
     <div id="boosters-bar" class="hidden">
       <button class="boosters-toggle" id="btn-boosters-toggle">
         <span class="toggle-icon">⚡</span>
@@ -96,10 +96,10 @@
             <div class="logo-bubble c5"></div>
           </div>
           <h1 class="logo-text">
-            <span>Bubble</span>
-            <span class="gradient">Shooter</span>
+            <span>Цветной</span>
+            <span class="gradient">Взрыв</span>
           </h1>
-          <div class="logo-sub">DELUXE EDITION</div>
+          <div class="logo-sub">COLOR BURST · DELUXE</div>
         </div>
 
         <div class="menu-coins">
@@ -125,7 +125,6 @@
             <span data-i18n="settings">Настройки</span>
           </button>
 
-          <!-- 🎯 VK-кнопки -->
           <div class="menu-row">
             <button class="btn btn-secondary" id="btn-favorites">
               <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
