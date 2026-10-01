@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover, maximum-scale=1.0">
+  <meta name="theme-color" content="#0a0e27">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="format-detection" content="telephone=no">
+  <title>Bubble Shooter Deluxe</title>
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><radialGradient id='g' cx='35%25' cy='35%25'><stop offset='0%25' stop-color='%237dc3ff'/><stop offset='50%25' stop-color='%234facfe'/><stop offset='100%25' stop-color='%232b7ac7'/></radialGradient></defs><circle cx='50' cy='50' r='45' fill='url(%23g)'/><circle cx='35' cy='32' r='14' fill='white' opacity='0.75'/></svg>">
+
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- VK Bridge. Обязательно подключается ДО остальных скриптов -->
+  <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
+</head>
+<body>
+  <div id="loader">
+    <div class="loader-logo">
+      <div class="loader-bubble b1"></div>
+      <div class="loader-bubble b2"></div>
+      <div class="loader-bubble b3"></div>
+    </div>
+    <div class="loader-text" data-i18n="loading">Загрузка...</div>
+    <div class="loader-bar"><div class="loader-fill"></div></div>
+  </div>
+
+  <div id="game-container">
+    <canvas id="game-canvas"></canvas>
+    <canvas id="fx-canvas"></canvas>
+
+    <!-- 🎯 Панель бустеров (сворачиваемая) -->
+    <div id="boosters-bar" class="hidden">
+      <button class="boosters-toggle" id="btn-boosters-toggle">
+        <span class="toggle-icon">⚡</span>
+        <span class="toggle-badge" id="boosters-total">0</span>
+      </button>
+      <div class="boosters-list">
+        <button class="booster-btn" id="btn-booster-bomb" data-booster="bomb">
+          <span class="booster-icon">💣</span>
+          <span class="booster-count" id="booster-bomb-count">0</span>
+        </button>
+        <button class="booster-btn" id="btn-booster-freeze" data-booster="freeze">
+          <span class="booster-icon">❄️</span>
+          <span class="booster-count" id="booster-freeze-count">0</span>
+        </button>
+        <button class="booster-btn" id="btn-booster-color" data-booster="color">
+          <span class="booster-icon">🎨</span>
+          <span class="booster-count" id="booster-color-count">0</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- HUD -->
+    <div id="hud" class="hidden">
+      <div class="hud-panel">
+        <div class="hud-item">
+          <svg viewBox="0 0 24 24" class="hud-icon"><path fill="currentColor" d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
+          <span id="score">0</span>
+        </div>
+        <div class="hud-item" id="hud-best">
+          <svg viewBox="0 0 24 24" class="hud-icon"><path fill="currentColor" d="M5 3h14v3H5zm0 5h14v3H5zm0 5h14v8H5z"/></svg>
+          <span id="hud-best-value">0</span>
+        </div>
+        <div class="hud-item" id="hud-shots">
+          <svg viewBox="0 0 24 24" class="hud-icon">
+            <path fill="currentColor" d="M11 3v14.17l-3.59-3.58L6 15l6 6 6-6-1.41-1.41L13 17.17V3z"/>
+          </svg>
+          <span id="shots-counter">5</span>
+        </div>
+        <div class="hud-item hud-coins">
+          <svg viewBox="0 0 24 24" class="hud-icon"><path fill="currentColor" d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 3a7 7 0 110 14 7 7 0 010-14z"/></svg>
+          <span data-coins>0</span>
+        </div>
+      </div>
+      <div class="hud-buttons">
+        <button class="icon-btn" id="btn-pause">
+          <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M6 4h4v16H6zm8 0h4v16h-4z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Меню -->
+    <div id="screen-menu" class="screen">
+      <div class="screen-bg"></div>
+      <div class="screen-content">
+        <div class="logo">
+          <div class="logo-bubbles">
+            <div class="logo-bubble c1"></div>
+            <div class="logo-bubble c2"></div>
+            <div class="logo-bubble c3"></div>
+            <div class="logo-bubble c4"></div>
+            <div class="logo-bubble c5"></div>
+          </div>
+          <h1 class="logo-text">
+            <span>Bubble</span>
+            <span class="gradient">Shooter</span>
+          </h1>
+          <div class="logo-sub">DELUXE EDITION</div>
+        </div>
+
+        <div class="menu-coins">
+          <svg viewBox="0 0 24 24" width="22" height="22"><path fill="#fbbf24" d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 3a7 7 0 110 14 7 7 0 010-14z"/></svg>
+          <span data-coins>0</span>
+        </div>
+
+        <div class="menu-buttons">
+          <button class="btn btn-primary btn-glow" id="btn-play">
+            <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>
+            <span data-i18n="play">Играть</span>
+          </button>
+          <button class="btn btn-secondary" id="btn-shop">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M7 18a2 2 0 100 4 2 2 0 000-4zm10 0a2 2 0 100 4 2 2 0 000-4zM7.2 14.6L6 7H3V5h4.3l.4 2H21l-2.2 7.6H7.2z"/></svg>
+            <span data-i18n="shop">Магазин</span>
+          </button>
+          <button class="btn btn-secondary" id="btn-leaderboard">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M5 21V10h4v11zm5 0V3h4v18zm5 0v-7h4v7z"/></svg>
+            <span data-i18n="leaderboard">Рейтинг</span>
+          </button>
+          <button class="btn btn-secondary" id="btn-settings">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 8a4 4 0 100 8 4 4 0 000-8zm9 4l-1.8 1.2.6 2.1-1.7 1.7-2.1-.6L14.8 18l-1.8.4L11.8 21h-2.6l-.8-2.4-1.8-.4L6.4 16.4l-2.1.6-1.7-1.7.6-2.1L1 12l1.8-1.2-.6-2.1 1.7-1.7 2.1.6L7.2 6l1.8-.4L9.8 3h2.6l.8 2.4 1.8.4 1.2 1.8 2.1-.6 1.7 1.7-.6 2.1z"/></svg>
+            <span data-i18n="settings">Настройки</span>
+          </button>
+
+          <!-- 🎯 VK-кнопки -->
+          <div class="menu-row">
+            <button class="btn btn-secondary" id="btn-favorites">
+              <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+              <span data-i18n="addToFavorites">В избранное</span>
+            </button>
+            <button class="btn btn-secondary" id="btn-support">
+              <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+              <span data-i18n="support">Сообщество</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="best-score">
+          <div class="best-label" data-i18n="best">Лучший счёт</div>
+          <div class="best-value" id="best-score">0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Магазин -->
+    <div id="screen-shop" class="screen hidden">
+      <div class="screen-bg"></div>
+      <div class="screen-content">
+        <h2 class="screen-title" data-i18n="shop">Магазин</h2>
+        <div class="shop-coins-row">
+          <svg viewBox="0 0 24 24" width="24" height="24"><path fill="#fbbf24" d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 3a7 7 0 110 14 7 7 0 010-14z"/></svg>
+          <span id="shop-coins">0</span>
+        </div>
+        <div class="shop-list">
+          <div class="shop-item">
+            <div class="shop-item-icon">💣</div>
+            <div class="shop-item-info">
+              <div class="shop-item-name" data-i18n="boosterBomb">Бомба</div>
+              <div class="shop-item-desc" data-i18n="boosterBombDesc">Взрывает всё в радиусе</div>
+            </div>
+            <button class="shop-buy-btn" data-buy-booster="bomb">
+              <span class="shop-price">50</span>
+              <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 3a7 7 0 110 14 7 7 0 010-14z"/></svg>
+            </button>
+          </div>
+          <div class="shop-item">
+            <div class="shop-item-icon">❄️</div>
+            <div class="shop-item-info">
+              <div class="shop-item-name" data-i18n="boosterFreeze">Заморозка</div>
+              <div class="shop-item-desc" data-i18n="boosterFreezeDesc">5 ходов без спуска</div>
+            </div>
+            <button class="shop-buy-btn" data-buy-booster="freeze">
+              <span class="shop-price">30</span>
+              <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 3a7 7 0 110 14 7 7 0 010-14z"/></svg>
+            </button>
+          </div>
+          <div class="shop-item">
+            <div class="shop-item-icon">🎨</div>
+            <div class="shop-item-info">
+              <div class="shop-item-name" data-i18n="boosterColor">Смена цвета</div>
+              <div class="shop-item-desc" data-i18n="boosterColorDesc">Меняет цвет шарика</div>
+            </div>
+            <button class="shop-buy-btn" data-buy-booster="color">
+              <span class="shop-price">20</span>
+              <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 3a7 7 0 110 14 7 7 0 010-14z"/></svg>
+            </button>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="btn-shop-back">
+          <span data-i18n="back">Назад</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Настройки -->
+    <div id="screen-settings" class="screen hidden">
+      <div class="screen-bg"></div>
+      <div class="screen-content">
+        <h2 class="screen-title" data-i18n="settings">Настройки</h2>
+        <div class="settings-list">
+          <label class="toggle">
+            <span class="toggle-label">
+              <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.8-1-3.3-2.5-4v8c1.5-.7 2.5-2.2 2.5-4z"/></svg>
+              <span data-i18n="sound">Звук</span>
+            </span>
+            <input type="checkbox" id="chk-sound" checked>
+            <span class="toggle-slider"></span>
+          </label>
+          <label class="toggle">
+            <span class="toggle-label">
+              <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 3v10.5A3.5 3.5 0 1015.5 17V7h4V3h-7.5z"/></svg>
+              <span data-i18n="music">Музыка</span>
+            </span>
+            <input type="checkbox" id="chk-music" checked>
+            <span class="toggle-slider"></span>
+          </label>
+          <label class="toggle">
+            <span class="toggle-label">
+              <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6V11c0-3.07-1.63-5.64-4.5-6.32V4a1.5 1.5 0 00-3 0v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+              <span data-i18n="vibration">Вибрация</span>
+            </span>
+            <input type="checkbox" id="chk-vibration" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <button class="btn btn-primary" id="btn-settings-back">
+          <span data-i18n="back">Назад</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Пауза -->
+    <div id="screen-pause" class="screen hidden">
+      <div class="screen-bg"></div>
+      <div class="screen-content">
+        <h2 class="screen-title" data-i18n="pause">Пауза</h2>
+        <div class="pause-stats">
+          <div><span data-i18n="score">Очки</span>: <b id="pause-score">0</b></div>
+        </div>
+        <button class="btn btn-primary" id="btn-resume" data-i18n="resumePlay">Продолжить</button>
+        <button class="btn btn-secondary" id="btn-restart-pause" data-i18n="restart">Заново</button>
+        <button class="btn btn-secondary" id="btn-menu-pause" data-i18n="menu">В меню</button>
+      </div>
+    </div>
+
+    <!-- Проигрыш -->
+    <div id="screen-lose" class="screen hidden">
+      <div class="screen-bg lose-bg"></div>
+      <div class="screen-content">
+        <div class="lose-icon">💥</div>
+        <h2 class="screen-title" data-i18n="gameover">Игра окончена</h2>
+        <div class="stats-grid">
+          <div class="stat">
+            <div class="stat-label" data-i18n="score">Очки</div>
+            <div class="stat-value" id="lose-score">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label" data-i18n="bestScore">Рекорд</div>
+            <div class="stat-value" id="lose-best">0</div>
+          </div>
+        </div>
+
+        <div class="lose-coins-row">
+          <svg viewBox="0 0 24 24" width="22" height="22"><path fill="#fbbf24" d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 3a7 7 0 110 14 7 7 0 010-14z"/></svg>
+          <span data-i18n="earned">Заработано</span>:
+          <b id="lose-coins-earned">0</b>
+          <svg viewBox="0 0 24 24" width="22" height="22"><path fill="#fbbf24" d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 3a7 7 0 110 14 7 7 0 010-14z"/></svg>
+        </div>
+
+        <button class="btn btn-ad" id="btn-double-coins">
+          <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M17 10.5V7a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1v-3.5l4 4v-11l-4 4z"/></svg>
+          <span data-i18n="x2CoinsAd">Удвоить монеты за рекламу</span>
+        </button>
+
+        <button class="btn btn-ad" id="btn-continue-ad">
+          <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M17 10.5V7a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1v-3.5l4 4v-11l-4 4z"/></svg>
+          <span data-i18n="continueAd">Продолжить за рекламу</span>
+        </button>
+
+        <button class="btn btn-primary" id="btn-restart" data-i18n="playAgain">Ещё раз</button>
+        <button class="btn btn-secondary" id="btn-menu-lose" data-i18n="menu">В меню</button>
+      </div>
+    </div>
+
+    <!-- Лидерборд -->
+    <div id="screen-leaderboard" class="screen hidden">
+      <div class="screen-bg"></div>
+      <div class="screen-content">
+        <h2 class="screen-title" data-i18n="leaderboard">Рейтинг</h2>
+
+        <div class="lb-self-card">
+          <div class="lb-self-label" data-i18n="yourBest">Ваш рекорд</div>
+          <div class="lb-self-value" id="lb-self-score">0</div>
+        </div>
+
+        <button class="btn btn-ad" id="btn-open-vk-lb">
+          <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M5 21V10h4v11zm5 0V3h4v18zm5 0v-7h4v7z"/></svg>
+          <span data-i18n="openVkLeaderboard">Открыть рейтинг VK</span>
+        </button>
+
+        <button class="btn btn-primary" id="btn-lb-back" data-i18n="back">Назад</button>
+      </div>
+    </div>
+
+    <div id="ad-indicator" class="hidden">
+      <div class="ad-text" data-i18n="adLoading">Загрузка рекламы...</div>
+    </div>
+
+    <div id="toast-container"></div>
+  </div>
+
+  <script src="js/debug.js"></script>
+  <script src="js/locales.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/vk-sdk.js"></script>
+  <script src="js/coins.js"></script>
+  <script src="js/background.js"></script>
+  <script src="js/bubble.js"></script>
+  <script src="js/grid.js"></script>
+  <script src="js/shooter.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/tutorial.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
