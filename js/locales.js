@@ -1,9 +1,14 @@
 // ============================================================
-// ЛОКАЛИЗАЦИЯ (RU / EN)
+// ЛОКАЛИЗАЦИЯ (RU / EN) — Цветной Взрыв
 // ============================================================
 
 const LOCALES = {
     ru: {
+        // --- Название игры ---
+        title: 'Цветной Взрыв',
+        subtitle: 'Игра-аркада с шариками',
+
+        // --- Общие ---
         loading: 'Загрузка...',
         initializing: 'Инициализация...',
         back: 'Назад',
@@ -11,29 +16,34 @@ const LOCALES = {
         restart: 'Заново',
         playAgain: 'Ещё раз',
         resumePlay: 'Продолжить',
+        close: 'Закрыть',
 
+        // --- Главное меню ---
         play: 'Играть',
         leaderboard: 'Рейтинг',
         settings: 'Настройки',
         shop: 'Магазин',
         best: 'Лучший счёт',
 
+        // --- HUD / экраны ---
         score: 'Очки',
         bestScore: 'Рекорд',
         coins: 'Монеты',
-
         pause: 'Пауза',
         gameover: 'Игра окончена',
 
+        // --- Настройки ---
         sound: 'Звук',
         music: 'Музыка',
         vibration: 'Вибрация',
 
+        // --- Реклама ---
         continueAd: 'Продолжить за рекламу',
         adLoading: 'Загрузка рекламы...',
         adNotAvailable: 'Реклама недоступна',
         x2CoinsAd: 'Удвоить монеты за рекламу',
 
+        // --- Комбо / игровые события ---
         excellent: 'Отлично!',
         amazing: 'Потрясающе!',
         perfect: 'Идеально!',
@@ -44,9 +54,13 @@ const LOCALES = {
         clearBonus: '🎉 Поле очищено! +{bonus}',
         newRecord: '🏆 Новый рекорд!',
 
+        // --- Рейтинг ---
         leaderboardEmpty: 'Рейтинг пока пуст',
         you: 'Вы',
+        yourBest: 'Ваш рекорд',
+        openVkLeaderboard: 'Открыть рейтинг VK',
 
+        // --- Монеты / бустеры ---
         earned: 'Заработано',
 
         boosterBomb: 'Бомба',
@@ -70,18 +84,18 @@ const LOCALES = {
         boostersTitle: 'Бустеры',
         boostersEmpty: 'Пусто',
 
-        // 🎯 VK
+        // --- VK ---
         addToFavorites: 'В избранное',
         support: 'Сообщество',
-        openVkLeaderboard: 'Открыть рейтинг VK',
-        yourBest: 'Ваш рекорд',
         favoritesAdded: '⭐ Добавлено в избранное!',
         favoritesFailed: 'Не удалось добавить',
         joinedCommunity: '✅ Спасибо за подписку!',
         joinCommunityFailed: 'Вы можете подписаться позже',
         communityUnavailable: 'Подписка доступна только в VK',
         vkOnly: 'Доступно только в VK',
+        lbVkHint: 'Нажми «Открыть рейтинг VK», чтобы увидеть таблицу лидеров',
 
+        // --- Туториал ---
         tutSkip: 'Пропустить',
         tutNext: 'Далее',
         tutFinish: 'Поехали!',
@@ -102,10 +116,15 @@ const LOCALES = {
         tutFireBody: 'Шарик с 🔥 взрывает <b>всё вокруг себя</b>. Попади им в гущу — и снесёшь пол-экрана!',
 
         tutBoosterTitle: 'Бустеры',
-        tutBoosterBody: 'Внизу слева — <b>кнопка ⚡</b>. Нажми — раскроются бустеры: 💣 бомба, ❄️ заморозка, 🎨 смена цвета. Покупай их в магазине!',
+        tutBoosterBody: 'Внизу слева — <b>кнопка ⚡</b>. Нажми — раскроются бустеры: 💣 бомба, ❄️ заморозка, 🎨 смена цвета. Покупай их в магазине!'
     },
 
     en: {
+        // --- Game title ---
+        title: 'Color Burst',
+        subtitle: 'Bubble arcade game',
+
+        // --- Common ---
         loading: 'Loading...',
         initializing: 'Initializing...',
         back: 'Back',
@@ -113,29 +132,34 @@ const LOCALES = {
         restart: 'Restart',
         playAgain: 'Play Again',
         resumePlay: 'Resume',
+        close: 'Close',
 
+        // --- Main menu ---
         play: 'Play',
         leaderboard: 'Leaderboard',
         settings: 'Settings',
         shop: 'Shop',
         best: 'Best Score',
 
+        // --- HUD / screens ---
         score: 'Score',
         bestScore: 'Best',
         coins: 'Coins',
-
         pause: 'Pause',
         gameover: 'Game Over',
 
+        // --- Settings ---
         sound: 'Sound',
         music: 'Music',
         vibration: 'Vibration',
 
+        // --- Ads ---
         continueAd: 'Continue for Ad',
         adLoading: 'Loading ad...',
         adNotAvailable: 'Ad not available',
         x2CoinsAd: 'Double coins for Ad',
 
+        // --- Combo / game events ---
         excellent: 'Excellent!',
         amazing: 'Amazing!',
         perfect: 'Perfect!',
@@ -146,9 +170,13 @@ const LOCALES = {
         clearBonus: '🎉 Board cleared! +{bonus}',
         newRecord: '🏆 New record!',
 
+        // --- Leaderboard ---
         leaderboardEmpty: 'Leaderboard is empty',
         you: 'You',
+        yourBest: 'Your best',
+        openVkLeaderboard: 'Open VK leaderboard',
 
+        // --- Coins / boosters ---
         earned: 'Earned',
 
         boosterBomb: 'Bomb',
@@ -172,39 +200,39 @@ const LOCALES = {
         boostersTitle: 'Boosters',
         boostersEmpty: 'Empty',
 
-        // 🎯 VK
+        // --- VK ---
         addToFavorites: 'Add to favorites',
         support: 'Community',
-        openVkLeaderboard: 'Open VK leaderboard',
-        yourBest: 'Your best',
         favoritesAdded: '⭐ Added to favorites!',
         favoritesFailed: 'Could not add',
         joinedCommunity: '✅ Thanks for joining!',
         joinCommunityFailed: 'You can join later',
         communityUnavailable: 'Joining is available in VK only',
         vkOnly: 'Available in VK only',
+        lbVkHint: 'Tap "Open VK leaderboard" to see the global ranking',
 
+        // --- Tutorial ---
         tutSkip: 'Skip',
         tutNext: 'Next',
         tutFinish: "Let's go!",
 
         tutAimTitle: 'Aim and shoot',
-        tutAimBody: 'Drag your finger — an <b>aim line</b> appears. Release to shoot.',
+        tutAimBody: 'Drag your finger — an <b>aim line</b> appears. It shows where the bubble will fly, including <span class="tip">wall bounces</span>. Release to shoot.',
 
         tutSwapTitle: 'Swap bubbles',
-        tutSwapBody: 'Tap the <b>bubble on the right</b> to swap it.',
+        tutSwapBody: 'Tap the <b>bubble on the right</b> to swap it with the current one.',
 
         tutCounterTitle: 'Watch the counter',
-        tutCounterBody: '⬇️ is the <b>shot counter</b>. When it hits <span class="tip">2</span> — get ready!',
+        tutCounterBody: '⬇️ is the <b>shot counter</b>. It shows how many shots until a new row drops. When it hits <span class="tip">2</span> — get ready!',
 
         tutClusterTitle: 'Build clusters',
-        tutClusterBody: 'Shoot <b>3+ bubbles of the same color</b> — they pop.',
+        tutClusterBody: 'Shoot <b>3+ bubbles of the same color</b> — they pop. Bubbles without support will fall and give bonus points.',
 
         tutFireTitle: 'Fire bubble',
-        tutFireBody: 'A 🔥 bubble <b>explodes everything around it</b>!',
+        tutFireBody: 'A 🔥 bubble <b>explodes everything around it</b>. Hit the thick of it — and wipe out half the screen!',
 
         tutBoosterTitle: 'Boosters',
-        tutBoosterBody: 'Bottom-left — <b>⚡ button</b>. Tap to open: 💣 bomb, ❄️ freeze, 🎨 color. Buy them in the shop!',
+        tutBoosterBody: 'Bottom-left — <b>⚡ button</b>. Tap to open: 💣 bomb, ❄️ freeze, 🎨 color. Buy them in the shop!'
     }
 };
 
